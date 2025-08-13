@@ -10,12 +10,11 @@ def handle_register(args):
     Handles the 'register' command to add a new user to the database.
     """
     print(f"Attempting to register user: {args.name} ({args.email})")
-    with Database(DB_FILE) as db:
-        if db.conn:
-            db.initialize_db()  # Ensures the 'users' table exists
-            user_id = db.insert_record(args.name, args.email)
-            if user_id:
-                print(f"User '{args.name}' registered successfully with ID: {user_id}")
+    with Database(DB_FILE) as db:  # The context manager handles connection and commit/close
+        db.initialize_db()  # Ensures the 'users' table exists
+        user_id = db.insert_record(args.name, args.email)
+        if user_id:
+            print(f"User '{args.name}' registered successfully with ID: {user_id}")
 
 def handle_calculate(args):
     """
@@ -45,17 +44,16 @@ def handle_list_users(args):
     Handles the 'show-users' command to list all registered users.
     """
     print("\n--- Registered Users ---")
-    with Database(DB_FILE) as db:
-        if db.conn:
-            users = db.fetch_all_records()
-            if users:
-                # Print a formatted header
-                print(f"{'ID':<5} {'Name':<20} {'Email':<30}")
-                print("-" * 55)
-                for user in users:
-                    print(f"{user[0]:<5} {user[1]:<20} {user[2]:<30}")
-            else:
-                print("No users found in the database.")
+    with Database(DB_FILE) as db:  # The context manager handles connection and close
+        users = db.fetch_all_records()
+        if users:
+            # Print a formatted header
+            print(f"{'ID':<5} {'Name':<20} {'Email':<30}")
+            print("-" * 55)
+            for user in users:
+                print(f"{user[0]:<5} {user[1]:<20} {user[2]:<30}")
+        else:
+            print("No users found in the database.")
 
 def main():
     """
